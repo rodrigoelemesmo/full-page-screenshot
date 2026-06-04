@@ -24,8 +24,9 @@
   "errBlocked": { "message": "No se puede capturar esta página (inyección de script bloqueada)." },
 
   "resCopy": { "message": "Copiar" },
-  "resCopied": { "message": "¡Copiado!" },
-  "resCopiedPart": { "message": "Parte 1 copiada" },
+  "resCopyHint": { "message": "Copia la imagen — luego pégala donde quieras (Ctrl/Cmd+V)" },
+  "resCopied": { "message": "¡Copiado — pega donde quieras!" },
+  "resCopiedPart": { "message": "Parte 1 copiada — pega donde quieras" },
   "resFailed": { "message": "Falló" },
   "resDownload": { "message": "Descargar" },
   "resDownloaded": { "message": "Descargado ✓" },

@@ -24,8 +24,9 @@
   "errBlocked": { "message": "Can't capture this page (script injection blocked)." },
 
   "resCopy": { "message": "Copy" },
-  "resCopied": { "message": "Copied!" },
-  "resCopiedPart": { "message": "Copied part 1" },
+  "resCopyHint": { "message": "Copy the image to the clipboard — then paste it anywhere (Ctrl/Cmd+V)" },
+  "resCopied": { "message": "Copied — paste anywhere!" },
+  "resCopiedPart": { "message": "Copied part 1 — paste anywhere" },
   "resFailed": { "message": "Failed" },
   "resDownload": { "message": "Download" },
   "resDownloaded": { "message": "Downloaded ✓" },
