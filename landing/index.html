@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Full Page Screenshot — capture the whole page in one click</title>
+<style>
+  :root {
+    --blue: #4f8cff;
+    --blue-deep: #2f6bff;
+    --indigo: #3a2f8f;
+    --green: #2ec47a;
+    --ink: #14141a;
+    --muted: #5b5b6b;
+    --line: #e9e9f1;
+    --bg: #ffffff;
+    --bg-soft: #f6f7fb;
+    --magenta: #ff3bd0;
+  }
+  * { margin: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink); background: var(--bg); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .logo { width: 30px; height: 30px; border-radius: 8px; display: block; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #fff; font-weight: 700; font-size: 15px;
+    padding: 12px 20px; border-radius: 12px; border: 0; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(79,140,255,.35); transition: transform .08s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost { background: #fff; color: var(--blue-deep); box-shadow: inset 0 0 0 1.5px var(--line); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 7px 14px; font-size: 14px; font-weight: 600; color: var(--muted);
+  }
+  kbd {
+    font: 600 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: #11121a; color: #eef; border-radius: 6px; padding: 3px 7px;
+  }
+  .eyebrow { font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; color: var(--blue-deep); }
+  h1 { font-size: 60px; line-height: 1.04; letter-spacing: -.03em; font-weight: 850; }
+  h2 { font-size: 38px; line-height: 1.1; letter-spacing: -.02em; font-weight: 820; }
+  h3 { font-size: 19px; font-weight: 750; }
+  .sub { font-size: 20px; color: var(--muted); }
+  svg.ic { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* nav */
+  nav { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; gap: 16px; height: 66px; }
+  nav .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; font-size: 17px; }
+  nav .links { margin-left: auto; display: flex; align-items: center; gap: 26px; font-weight: 600; color: var(--muted); }
+  nav .links a:hover { color: var(--ink); }
+  .free { color: var(--green); font-weight: 800; }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(79,140,255,.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(46,196,122,.14), transparent 55%); }
+  .hero .wrap { padding: 78px 24px 64px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+  .hero h1 .grad { background: linear-gradient(90deg, var(--blue-deep), var(--green)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .sub { margin: 20px 0 26px; max-width: 520px; }
+  .cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .hero-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+  /* browser mockup */
+  .mock { border-radius: 16px; overflow: hidden; box-shadow: 0 30px 70px rgba(20,20,40,.22); border: 1px solid var(--line); background: #fff; }
+  .mock .bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: #f1f2f7; border-bottom: 1px solid var(--line); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .mock .url { margin-left: 10px; flex: 1; background: #fff; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; color: var(--muted); padding: 5px 10px; }
+  .mock .page { position: relative; height: 320px; background: linear-gradient(#fff, #eef0f6); padding: 18px; overflow: hidden; }
+  .skl { height: 12px; border-radius: 6px; background: #e4e6f0; margin: 0 0 12px; }
+  .capture-toast {
+    position: absolute; right: 16px; top: 16px; background: #11121a; color: #fff;
+    border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .scanline { position: absolute; left: 0; right: 0; height: 60px; top: 40%;
+    background: linear-gradient(180deg, rgba(79,140,255,0), rgba(79,140,255,.25)); border-bottom: 2px solid var(--blue); }
+
+  /* sections */
+  section { padding: 84px 0; }
+  .soft { background: var(--bg-soft); }
+  .center { text-align: center; max-width: 720px; margin: 0 auto 50px; }
+  .grid { display: grid; gap: 20px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 26px; }
+  .card .badge { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px; color: #fff; }
+  .card h3 { margin-bottom: 7px; }
+  .card p { color: var(--muted); font-size: 15px; }
+  .b-blue { background: linear-gradient(135deg, #5a93ff, #2f6bff); }
+  .b-green { background: linear-gradient(135deg, #38d488, #19a564); }
+  .b-violet { background: linear-gradient(135deg, #8b6cff, #6b46ff); }
+  .b-amber { background: linear-gradient(135deg, #ffb347, #ff8a3c); }
+  .b-pink { background: linear-gradient(135deg, #ff6fd8, #ff3bd0); }
+  .b-slate { background: linear-gradient(135deg, #6b7280, #3f4756); }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; counter-reset: s; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 28px; position: relative; }
+  .step::before { counter-increment: s; content: counter(s); position: absolute; top: -16px; left: 24px;
+    width: 38px; height: 38px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 800; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(79,140,255,.4); }
+  .step h3 { margin: 8px 0 6px; }
+  .step p { color: var(--muted); font-size: 15px; }
+
+  /* formats row */
+  .formats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .fmt { font-weight: 800; border-radius: 12px; padding: 14px 22px; border: 1.5px solid var(--line); background: #fff; font-size: 16px; }
+
+  /* cta band */
+  .band { background: linear-gradient(120deg, var(--indigo), var(--blue-deep)); color: #fff; border-radius: 28px; padding: 64px; text-align: center; }
+  .band h2 { color: #fff; }
+  .band p { color: rgba(255,255,255,.85); font-size: 19px; margin: 14px auto 30px; max-width: 560px; }
+  .band .btn { background: #fff; color: var(--blue-deep); }
+
+  footer { padding: 46px 0 70px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .tag { display:inline-flex; align-items:center; gap:6px; }
+
+  @media (max-width: 880px) {
+    h1 { font-size: 42px; } h2 { font-size: 30px; }
+    .hero .wrap { grid-template-columns: 1fr; }
+    .g3, .g2, .steps { grid-template-columns: 1fr; }
+    nav .links a:not(.navcta) { display: none; }
+    .band { padding: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGO (reused) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="appicon" viewBox="0 0 128 128">
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a96ff"/><stop offset="1" stop-color="#3a6bf5"/>
+    </linearGradient></defs>
+    <rect x="2" y="2" width="124" height="124" rx="28" fill="url(#lg)"/>
+    <rect x="34" y="20" width="60" height="78" rx="6" fill="#fff"/>
+    <g fill="#9fb6e6"><rect x="44" y="34" width="40" height="6" rx="3"/><rect x="44" y="48" width="40" height="6" rx="3"/><rect x="44" y="62" width="40" height="6" rx="3"/><rect x="44" y="76" width="22" height="6" rx="3"/></g>
+    <circle cx="94" cy="96" r="20" fill="#2ec47a"/>
+    <path d="M94 86 L94 102 M86 96 L94 104 L102 96" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </symbol>
+</svg>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="logo" viewBox="0 0 128 128"><use href="#appicon"/></svg> Full Page Screenshot</a>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <span class="free">Free</span>
+      <button class="btn navcta">Add to Chrome</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Chrome extension</div>
+      <h1>Capture the <span class="grad">whole page</span>.<br/>In one click.</h1>
+      <p class="sub">Scroll-free, full-page screenshots — even when the content lives inside a scrolling panel or an embedded frame. Then crop, annotate, and copy it anywhere.</p>
+      <div class="cta-row">
+        <button class="btn">＋ Add to Chrome — it's free</button>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <div class="hero-meta">
+        <span class="pill">⌨️ Shortcut <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></span>
+        <span class="pill">🖱️ Or one click</span>
+        <span class="pill">🔒 No tracking</span>
+      </div>
+    </div>
+
+    <div class="mock" aria-hidden="true">
+      <div class="bar">
+        <span class="dot" style="background:#ff5f57"></span>
+        <span class="dot" style="background:#febc2e"></span>
+        <span class="dot" style="background:#28c840"></span>
+        <span class="url">https://example.com/a-very-long-page</span>
+      </div>
+      <div class="page">
+        <div class="skl" style="width:55%;height:20px"></div>
+        <div class="skl" style="width:90%"></div>
+        <div class="skl" style="width:96%"></div>
+        <div class="skl" style="width:80%"></div>
+        <div class="skl" style="width:92%"></div>
+        <div class="skl" style="width:70%"></div>
+        <div class="skl" style="width:88%"></div>
+        <div class="scanline"></div>
+        <div class="capture-toast">📸 Capturing full page… ●●●●●○○</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="center">
+    <div class="eyebrow">Works where others don't</div>
+    <h2>One capture engine for every kind of page</h2>
+    <p class="sub" style="margin-top:12px">Most tools only grab what the window scrolls. This one figures out <em>what</em> actually scrolls — and captures it fully.</p>
+  </div>
+  <div class="grid g3">
+    <div class="card">
+      <div class="badge b-blue"><svg class="ic"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+      <h3>Long pages & articles</h3>
+      <p>Scrolls top to bottom and stitches every slice into one tall, pixel-perfect image.</p>
+    </div>
+    <div class="card">
+      <div class="badge b-green"><svg class="ic"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></div>
+      <h3>Apps that scroll inside</h3>
+      <p>Google Docs, Gmail, Notion and dashboards scroll a panel, not the window. Detected automatically.</p>
+    </div>
+    <div class="card">
+      <div class="badge b-violet"><svg class="ic"><rect x="3" y="3" width="18" height="18" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg></div>
+      <h3>Cross-origin iframes</h3>
+      <p>Embedded previews and design canvases captured in full — granted on demand, only when needed.</p>
+    </div>
+    <div class="card">
+      <div class="badge b-amber"><svg class="ic"><path d="M21 15l-5-5L5 21"/><path d="M3 16V5a2 2 0 0 1 2-2h11"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></div>
+      <h3>Lazy-loaded images</h3>
+      <p>Waits for images to actually render before capturing — no blank gaps where content should be.</p>
+    </div>
+    <div class="card">
+      <div class="badge b-slate"><svg class="ic"><rect x="4" y="3" width="16" height="7" rx="1"/><rect x="4" y="14" width="16" height="7" rx="1"/></svg></div>
+      <h3>Enormous pages</h3>
+      <p>Beyond the canvas limit? Split into multiple full-resolution images — your choice, no silent quality loss.</p>
+    </div>
+    <div class="card">
+      <div class="badge b-pink"><svg class="ic"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><path d="M3 3l18 18"/></svg></div>
+      <h3>Stays sharp & honest</h3>
+      <p>Accounts for high-DPI screens, restores your scroll position, and never duplicates fixed headers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="soft" id="editor">
+  <div class="center">
+    <div class="eyebrow">Built-in editor</div>
+    <h2>Mark it up. Hide what's private.</h2>
+    <p class="sub" style="margin-top:12px">Every annotation is an object you can move, resize, recolor, or delete — with real undo/redo.</p>
+  </div>
+  <div class="grid g3">
+    <div class="card"><div class="badge b-blue"><svg class="ic"><line x1="6" y1="18" x2="18" y2="6"/><polyline points="9 6 18 6 18 15"/></svg></div><h3>Arrows & boxes</h3><p>Point at the thing that matters and frame the region you care about.</p></div>
+    <div class="card"><div class="badge b-violet"><svg class="ic"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></div><h3>Text & free-hand pencil</h3><p>Add notes, circle things, scribble — whatever gets the point across.</p></div>
+    <div class="card"><div class="badge b-pink"><svg class="ic"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><path d="M3 3l18 18"/></svg></div><h3>Hide sensitive values</h3><p>Pixelate emails, prices, or any private data before you share — like the eye-off in finance apps.</p></div>
+  </div>
+</section>
+
+<section id="export">
+  <div class="center">
+    <div class="eyebrow">Export anywhere</div>
+    <h2>Save it your way — or just paste it</h2>
+    <p class="sub" style="margin-top:12px">Click <strong>Copy</strong> and the image is on your clipboard — paste it straight into Slack, Docs, email, anywhere.</p>
+    <div class="formats">
+      <span class="fmt">PNG</span>
+      <span class="fmt">JPEG</span>
+      <span class="fmt">PDF</span>
+      <span class="fmt" style="border-color:var(--blue);color:var(--blue-deep)">📋 Copy → paste anywhere</span>
+    </div>
+  </div>
+</section>
+
+<section class="soft" id="how">
+  <div class="center">
+    <div class="eyebrow">How it works</div>
+    <h2>Three steps. Mostly one.</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <h3>Trigger it</h3>
+      <p>Press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> (configurable) or click the toolbar icon. That's the whole interaction.</p>
+    </div>
+    <div class="step">
+      <h3>It captures</h3>
+      <p>The page scrolls itself, waits for each section to render, and stitches everything into one image.</p>
+    </div>
+    <div class="step">
+      <h3>Edit & share</h3>
+      <p>Crop, annotate, hide private bits, then download as PNG/JPEG/PDF or copy and paste it anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="grid g2" style="align-items:center;gap:48px">
+    <div>
+      <div class="eyebrow">Private by design</div>
+      <h2>Your screenshots never leave your device</h2>
+      <p class="sub" style="margin:16px 0 22px">No tracking, no ads, no remote servers. The extension installs with a minimal permission set; broad access is requested on demand and only to capture cross-origin iframes.</p>
+      <div class="hero-meta">
+        <span class="pill">🚫 No data collected</span>
+        <span class="pill">🧩 Minimal permissions</span>
+        <span class="pill">🌐 EN · PT · ES</span>
+        <span class="pill">⭐ Open source</span>
+      </div>
+    </div>
+    <div class="grid" style="gap:16px">
+      <div class="card"><div class="badge b-green"><svg class="ic"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Nothing phones home</h3><p>All capture, stitching, editing and export happens locally in your browser.</p></div>
+      <div class="card"><div class="badge b-slate"><svg class="ic"><path d="M16 18l6-6-6-6"/><path d="M8 6l-6 6 6 6"/></svg></div><h3>Free & open</h3><p>The full source is on GitHub — inspect exactly what it does.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="band">
+      <h2>Capture the whole page right now</h2>
+      <p>Free, private, and it just works — on the pages where other tools give up.</p>
+      <button class="btn">＋ Add to Chrome — it's free</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <svg class="logo" viewBox="0 0 128 128" style="width:24px;height:24px"><use href="#appicon"/></svg>
+    <strong>Full Page Screenshot</strong>
+    <span class="tag">· Free</span>
+    <span style="margin-left:auto">© 2026 · <a href="https://github.com/rodrigoelemesmo/full-page-screenshot" style="color:var(--blue-deep);font-weight:700">GitHub</a> · Privacy</span>
+  </div>
+</footer>
+
+</body>
+</html>
