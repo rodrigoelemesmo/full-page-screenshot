@@ -6,7 +6,8 @@
   "scripts": {
     "test:unit": "node --test tests/unit/",
     "test:e2e": "playwright test",
-    "test": "npm run test:unit && npm run test:e2e"
+    "test": "npm run test:unit && npm run test:e2e",
+    "zip": "node scripts/build-zip.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0"
