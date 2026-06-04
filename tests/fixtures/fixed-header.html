@@ -1,0 +1,10 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>fixed-header</title>
+<link rel="stylesheet" href="_style.css">
+<style>.hdr{position:fixed;top:0;left:0;right:0;height:50px;background:#222;color:#fff;display:flex;align-items:center;padding:0 16px;z-index:9}</style>
+</head>
+<body data-expected-height="3000">
+  <div class="hdr">FIXED header (should appear once, not repeated)</div>
+  <div class="top" style="margin-top:50px">TOP marker (cyan)</div>
+  <div class="fill" style="height:2830px">Page with a sticky/fixed header.</div>
+  <div class="bottom" id="bottom">BOTTOM marker (magenta)</div>
+</body></html>

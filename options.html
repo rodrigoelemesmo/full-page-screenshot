@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Full Page Screenshot — Options</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #18181b;
+      color: #f1f1f4;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 32px 24px; }
+    h1 { font-size: 20px; margin: 0 0 4px; display: flex; align-items: center; gap: 9px; }
+    h1 img { width: 26px; height: 26px; border-radius: 6px; }
+    .sub { color: #9a9aa3; font-size: 13px; margin: 0 0 28px; }
+    .card {
+      background: #1e1e22;
+      border: 1px solid #2c2c31;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .card h2 { font-size: 14px; margin: 0 0 14px; font-weight: 600; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; }
+    .row label { font-size: 14px; }
+    .row .hint { font-size: 12px; color: #9a9aa3; margin-top: 2px; }
+    select, input[type="range"] { accent-color: #4f8cff; }
+    select {
+      background: #2c2c31; color: #f1f1f4; border: 1px solid #3a3a40;
+      border-radius: 8px; padding: 6px 10px; font-size: 13px;
+    }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #4f8cff; }
+    button {
+      padding: 8px 14px; font-size: 13px; font-weight: 600; border: none;
+      border-radius: 8px; background: #4f8cff; color: #fff; cursor: pointer;
+    }
+    button:hover { background: #3a7afe; }
+    .shortcut {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #2c2c31; border: 1px solid #3a3a40; border-radius: 6px;
+      padding: 4px 10px; font-size: 13px;
+    }
+    .saved { font-size: 12px; color: #6bd49a; min-height: 16px; margin-top: 6px; }
+    .qval { font-variant-numeric: tabular-nums; width: 38px; text-align: right; font-size: 13px; }
+  </style>
+</head>
+<body data-i18n-doctitle="optSettings">
+  <div class="wrap">
+    <h1><img src="icons/icon48.png" alt="" /> <span data-i18n="appName">Full Page Screenshot</span></h1>
+    <p class="sub" data-i18n="optSettings">Settings</p>
+
+    <div class="card">
+      <h2 data-i18n="optShortcutHeading">Keyboard shortcut</h2>
+      <div class="row">
+        <div>
+          <label data-i18n="optCaptureLabel">Capture full page</label>
+          <div class="hint" data-i18n="optShortcutDefault">Default: Alt+Shift+P</div>
+        </div>
+        <span class="shortcut" id="shortcut">…</span>
+      </div>
+      <div class="row">
+        <div class="hint" data-i18n="optChromeManages">Chrome manages shortcuts on its own page.</div>
+        <button id="changeShortcut" data-i18n="optChangeShortcut">Change shortcut</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="optOutputHeading">Output</h2>
+      <div class="row">
+        <div>
+          <label for="format" data-i18n="optDefaultFormat">Default format</label>
+          <div class="hint" data-i18n="optFormatHint">JPEG produces much smaller files on long pages.</div>
+        </div>
+        <select id="format">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+        </select>
+      </div>
+      <div class="row" id="qualityRow">
+        <div>
+          <label for="quality" data-i18n="optJpegQuality">JPEG quality</label>
+          <div class="hint" data-i18n="optQualityHint">Higher = better quality, larger file.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="quality" min="0.5" max="1" step="0.01" />
+          <span class="qval" id="qualityVal"></span>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="largePage" data-i18n="optOversized">Oversized pages</label>
+          <div class="hint" data-i18n="optOversizedHint">Beyond the canvas limit: keep full resolution or fit one image.</div>
+        </div>
+        <select id="largePage">
+          <option value="split" data-i18n="optSplit">Split into multiple images</option>
+          <option value="downscale" data-i18n="optDownscale">Downscale to one image</option>
+        </select>
+      </div>
+      <div class="row">
+        <div>
+          <label for="captureDelay" data-i18n="optCaptureDelay">Extra wait per step</label>
+          <div class="hint" data-i18n="optCaptureDelayHint">Increase for pages with heavy lazy-loading or canvas rendering (e.g. Google Docs).</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="captureDelay" min="0" max="2000" step="50" />
+          <span class="qval" id="captureDelayVal"></span>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="stabilize" data-i18n="optStabilize">Wait until the page stops changing</label>
+          <div class="hint" data-i18n="optStabilizeHint">Slower, but more reliable for canvas apps (e.g. Google Docs): recaptures each step until it settles.</div>
+        </div>
+        <input type="checkbox" id="stabilize" />
+      </div>
+      <div class="row">
+        <div>
+          <label for="autoDownload" data-i18n="optAutoDownload">Auto-download after capture</label>
+          <div class="hint" data-i18n="optAutoDownloadHint">Save the file automatically when the result opens.</div>
+        </div>
+        <input type="checkbox" id="autoDownload" />
+      </div>
+      <div class="saved" id="saved"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="optPermHeading">Cross-origin iframes</h2>
+      <div class="row">
+        <div class="hint" data-i18n="optPermHint" style="max-width:380px">Capturing content inside cross-origin iframes needs broad host access.</div>
+        <button id="permToggle">…</button>
+      </div>
+      <div class="saved" id="permStatus"></div>
+    </div>
+  </div>
+  <script src="i18n.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

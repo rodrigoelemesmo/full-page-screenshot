@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Full Page Screenshot</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #18181b;
+      color: #f1f1f4;
+    }
+    .meta { font-size: 13px; color: #9a9aa3; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #4a3a12; color: #ffce6b; }
+    .right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    button {
+      padding: 8px 14px; font-size: 13px; font-weight: 600; border: none;
+      border-radius: 8px; background: #4f8cff; color: #fff; cursor: pointer;
+    }
+    button:hover { background: #3a7afe; }
+    button.ghost { background: #2c2c31; }
+    button.ghost:hover { background: #3a3a40; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    select {
+      background: #2c2c31; color: #f1f1f4; border: 1px solid #3a3a40;
+      border-radius: 8px; padding: 7px 10px; font-size: 13px;
+    }
+
+    /* Toolbar */
+    #toolbarWrap { position: sticky; top: 0; z-index: 9; background: #202024; border-bottom: 1px solid #2c2c31; }
+    #toolbar {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding: 14px 20px 4px;
+    }
+    #editTools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    #toolHint {
+      padding: 0 20px 14px; font-size: 12px; color: #9a9aa3; min-height: 16px;
+    }
+    #toolbar .sep { width: 1px; height: 22px; background: #3a3a40; margin: 0 4px; }
+    .tool {
+      width: 36px; height: 36px; padding: 0;
+      background: #34343c; color: #eceef3;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .tool:hover { background: #41414a; color: #fff; }
+    .tool.active { background: #4f8cff; color: #fff; }
+    .tool.active:hover { background: #3a7afe; }
+    .tool svg {
+      width: 18px; height: 18px; display: block;
+      fill: none; stroke: currentColor; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .tool.sel svg { fill: currentColor; stroke-width: 1; }
+    .logo { width: 20px; height: 20px; border-radius: 4px; vertical-align: -5px; margin-right: 2px; }
+    #toolbar input[type="color"] { width: 34px; height: 34px; padding: 0; border: none; background: none; cursor: pointer; }
+    #toolbar input[type="range"] { width: 90px; accent-color: #4f8cff; }
+    #toolbar label { font-size: 12px; color: #9a9aa3; }
+    .crop-actions { display: none; gap: 6px; }
+    .crop-actions.show { display: flex; }
+
+    .stage { padding: 24px; display: flex; justify-content: center; }
+    #canvas { max-width: 100%; height: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border-radius: 4px; cursor: crosshair; touch-action: none; }
+    #multiStage { display: none; flex-direction: column; gap: 8px; align-items: center; }
+    #multiStage img { max-width: 100%; height: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.5); border-radius: 4px; }
+    .note { color: #9a9aa3; font-size: 13px; margin-bottom: 8px; text-align: center; }
+    .empty { padding: 60px; text-align: center; color: #888; }
+
+    .fps-text-input {
+      position: fixed; z-index: 1000; background: rgba(255,255,255,0.95); color: #000;
+      border: 1px solid #4f8cff; border-radius: 4px; padding: 2px 6px; outline: none; min-width: 60px;
+    }
+  </style>
+</head>
+<body data-i18n-doctitle="appName">
+  <div id="toolbarWrap">
+    <div id="toolbar">
+      <span id="editTools">
+      <button class="tool sel active" data-tool="select" data-hint="hintSelect" data-i18n-title="toolSelect" title="Select">
+        <svg viewBox="0 0 24 24"><path d="M5 2.5 L5 19.8 L9.4 15.4 L12.2 21.4 L14.4 20.4 L11.6 14.5 L17.6 14.5 Z"/></svg>
+      </button>
+      <button class="tool" data-tool="crop" data-hint="hintCrop" data-i18n-title="toolCrop" title="Crop">
+        <svg viewBox="0 0 24 24"><path d="M6.13 1 L6 16 a2 2 0 0 0 2 2 L23 18"/><path d="M1 6.13 L16 6 a2 2 0 0 1 2 2 L18 23"/></svg>
+      </button>
+      <button class="tool" data-tool="arrow" data-hint="hintArrow" data-i18n-title="toolArrow" title="Arrow">
+        <svg viewBox="0 0 24 24"><line x1="6" y1="18" x2="18" y2="6"/><polyline points="9 6 18 6 18 15"/></svg>
+      </button>
+      <button class="tool" data-tool="rect" data-hint="hintRect" data-i18n-title="toolRect" title="Rectangle">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+      </button>
+      <button class="tool" data-tool="text" data-hint="hintText" data-i18n-title="toolText" title="Text">
+        <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      </button>
+      <button class="tool" data-tool="pencil" data-hint="hintPencil" data-i18n-title="toolPencil" title="Pencil">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      </button>
+      <button class="tool" data-tool="blur" data-hint="hintBlur" data-i18n-title="toolBlur" title="Hide">
+        <svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+      <span class="sep"></span>
+      <input type="color" id="color" value="#ff3b30" data-i18n-title="edColor" title="Color" />
+      <label data-i18n="edWidth">Thickness</label>
+      <input type="range" id="width" min="1" max="20" step="1" value="4" data-i18n-title="edWidth" title="Thickness" />
+      <span id="fontWrap" style="display:none">
+        <label data-i18n="edFontSize">Font size</label>
+        <input type="range" id="fontSize" min="10" max="80" step="1" value="24" />
+      </span>
+      <span class="crop-actions" id="cropActions">
+        <button id="applyCrop" data-i18n="edApply">Apply</button>
+        <button class="ghost" id="cancelCrop" data-i18n="edCancel">Cancel</button>
+      </span>
+      <span class="sep"></span>
+      <button class="tool ghost" id="undo" data-i18n-title="edUndo" title="Undo">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+      <button class="tool ghost" id="redo" data-i18n-title="edRedo" title="Redo">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+      <button class="tool ghost" id="delete" data-i18n-title="edDelete" title="Delete">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </button>
+      </span>
+
+      <span class="right">
+        <span class="badge" id="badge" style="display:none"></span>
+        <span class="meta" id="meta"></span>
+        <select id="format" data-i18n-title="formatTitle" title="Output format">
+          <option value="png">PNG</option>
+          <option value="jpeg">JPEG</option>
+          <option value="pdf">PDF</option>
+        </select>
+        <button class="ghost" id="copy" data-i18n="resCopy">Copy</button>
+        <button id="download" data-i18n="resDownload">Download</button>
+      </span>
+    </div>
+    <div id="toolHint"></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="canvas"></canvas>
+    <div id="multiStage"></div>
+    <div class="empty" id="emptyMsg" style="display:none" data-i18n="resNoShot">No screenshot found.</div>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="editor.js"></script>
+  <script src="results.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+* { margin: 0; box-sizing: border-box; }
+body { font-family: sans-serif; }
+.top { height: 60px; background: #00e5ff; color: #003; display: flex; align-items: center; padding: 0 16px; }
+.fill { background: linear-gradient(#fafafa, #e8e8e8); padding: 16px; }
+/* The magenta bottom marker: tests sample the bottom of the stitched image
+   and assert it's magenta — proving the capture scrolled to the very end. */
+.bottom { height: 60px; background: rgb(255, 0, 255); color: #fff; display: flex; align-items: center; padding: 0 16px; }
