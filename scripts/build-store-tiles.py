@@ -110,16 +110,17 @@ def build_shot(cfg):
     print("built", cfg["out"], base.size)
 
 # ---- didactic paste tile (Ctrl + V → image appears in your app) ----
-def keycap(draw, cx, cy, label, font):
+def keycap(draw, x0, cy, label, font):
+    """Draw a keycap whose LEFT edge is x0; return its width."""
     tw = draw.textlength(label, font=font)
     asc, desc = font.getmetrics()
     pad = 30
     w = int(tw + pad * 2); h = 92
-    x0 = int(cx - w/2); y0 = int(cy - h/2)
+    x0 = int(x0); y0 = int(cy - h/2)
     draw.rounded_rectangle([x0, y0+7, x0+w, y0+h+7], radius=16, fill=(18, 19, 26))   # 3D base
     draw.rounded_rectangle([x0, y0, x0+w, y0+h], radius=16, fill=(48, 50, 66))       # top face
     draw.rounded_rectangle([x0+4, y0+4, x0+w-4, y0+18], radius=8, fill=(66, 68, 86)) # gloss
-    draw.text((cx - tw/2, cy - (asc+desc)/2 + 2), label, font=font, fill=(255, 255, 255))
+    draw.text((x0 + (w - tw)/2, cy - (asc+desc)/2 + 2), label, font=font, fill=(255, 255, 255))
     return w
 
 def build_paste(cfg):
@@ -145,16 +146,25 @@ def build_paste(cfg):
     cd.rounded_rectangle([26, 88, 26+pw-1, 88+crop_h-1], radius=12, outline=(228, 230, 240), width=2)
     base.paste(card, (cx0, cy0), rounded_mask((cw, ch), 22))
 
-    # keycaps: Ctrl + V on the left, arrow pointing into the card
+    # keycaps: Ctrl + V on the left, laid out left→right with a real gap for "+"
     kf = find_font(40)
+    pf = find_font(48)
     midy = cy0 + 150
-    w1 = keycap(draw, 250, midy, "Ctrl", kf)
-    pf = find_font(46)
-    draw.text((250 + w1/2 + 14, midy - 30), "+", font=pf, fill=(255, 255, 255))
-    keycap(draw, 250 + w1/2 + 78, midy, "V", kf)
+    gap = 26
+    wC = draw.textlength("Ctrl", font=kf) + 60
+    wV = draw.textlength("V", font=kf) + 60
+    wPlus = draw.textlength("+", font=pf)
+    total = wC + gap + wPlus + gap + wV
+    gx = 280  # group center x
+    x = gx - total / 2
+    asc, desc = pf.getmetrics()
+    x += keycap(draw, x, midy, "Ctrl", kf) + gap
+    draw.text((x, midy - (asc + desc) / 2 + 2), "+", font=pf, fill=(255, 255, 255))
+    x += wPlus + gap
+    keycap(draw, x, midy, "V", kf)
     cap = find_font(26)
     lbl = "paste it"
-    draw.text((250 - draw.textlength(lbl, font=cap)/2 + w1*0.3, midy + 70), lbl, font=cap, fill=(255, 255, 255))
+    draw.text((gx - draw.textlength(lbl, font=cap) / 2, midy + 72), lbl, font=cap, fill=(255, 255, 255))
 
     # arrow → into the card
     ax0, ax1, ay = 470, 650, midy
